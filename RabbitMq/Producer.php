@@ -11,6 +11,10 @@ class Producer extends BaseAmqp
 {
     protected $exchangeDeclared = false;
     protected $queueDeclared = false;
+    protected $defaultMessageProperties = array(
+        'content_type' => 'text/plain',
+        'delivery_mode' => 2,
+    );
 
     public function exchangeDeclare()
     {
@@ -50,11 +54,11 @@ class Producer extends BaseAmqp
         }
     }
 
-    public function publish($msgBody, $routingKey = '')
+    public function publish($msgBody, $routingKey = '', $properties = array())
     {
         $this->setupProducer();
 
-        $msg = new AMQPMessage($msgBody, array('content_type' => 'text/plain', 'delivery_mode' => 2));
+        $msg = new AMQPMessage($msgBody, array_merge($this->defaultMessageProperties, $properties));
         $this->ch->basic_publish($msg, $this->exchangeOptions['name'], $routingKey);
     }
 }
